@@ -1,0 +1,7 @@
+
+# Web server to PUT result and output text files
+#cronologue_server = localhost
+cronologue_server = cronologue
+
+# vim:ft=conf
+

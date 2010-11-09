@@ -1,0 +1,123 @@
+#!/usr/bin/perl
+#
+# Script to record cron job execution and archive output back to a 
+# central webserver as text files using HTTP PUTs.
+#
+# TODO:
+# - got to do an initial hostname mkdir
+# - trap errors and make sure command runs
+
+use strict;
+use warnings;
+use File::Basename;
+use Getopt::Long qw(:config no_ignore_case bundling);
+use Config::Tiny;
+use Sys::Hostname;
+use Time::Piece;
+use Digest::MD5 qw(md5_hex);
+use IPC::Run qw(harness);
+use LWP::UserAgent;
+use HTTP::Request;
+
+sub usage {
+  die "usage: " . basename($0) . " <command> <args>\n";
+}
+
+my $verbose = 0;
+my ($help);
+usage unless GetOptions(
+  'help|h|?'        => \$help,
+  'verbose|v+'      => \$verbose,
+);
+usage if $help;
+usage unless @ARGV;
+
+# Setup config etc.
+my $config_file = $ENV{CRONOLOGUE_CONF} || "/etc/cronologue.conf";
+my $config = Config::Tiny->read($config_file) if -f $config_file;
+my $server = $config->{_}->{cronologue_server} || 'localhost';
+my $hostname = hostname;
+(my $hostname_short = $hostname) =~ s/\..*$//;
+my $user = getpwuid($>) || $>;
+my $start_time = gmtime;
+my $start_ts = $start_time->strftime('%Y%m%d%H%M%S');
+my $start_pretty = $start_time->strftime('%a, %d %b %Y %H:%M:%S %z');
+my $cmd = join ' ', @ARGV;
+my $cmd_digest = md5_hex $cmd;
+
+# Build base URL
+my $base_url = sprintf "http://%s/cronologue/%s/%s_%s", 
+  $server, $hostname_short, $start_ts, $cmd_digest;
+
+# Build initial output
+my $record = <<EOD
+Hostname: $hostname
+Username: $user
+StartTime: $start_pretty
+CommandLine: $cmd
+CommandDigest: $cmd_digest
+EOD
+;
+
+my $ua = LWP::UserAgent->new;
+$ua->env_proxy;
+
+# PUT initial job record
+my $url = "$base_url.txt";
+print "+ job record url: $url\n" if $verbose;
+my $req = HTTP::Request->new( PUT => $url );
+$req->content_type('text/plain');
+$req->content($record);
+my $res = $ua->request($req);
+die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+
+# Run command
+my $stdout = 'x' x 10_000; $stdout = '';        # preallocate 10k bytes
+my $stderr = 'x' x 10_000; $stderr = '';        # preallocate 10k bytes
+my $h = harness \@ARGV, \undef, \$stdout, \$stderr;
+$h->run;
+my $rc = $h->result(0);
+my $end_time = gmtime;
+my $end_ts = $end_time->strftime('%Y%m%d%H%M%S');
+my $end_pretty = $end_time->strftime('%a, %d %b %Y %H:%M:%S %z');
+my $runtime = $end_time - $start_time;
+
+$record = <<EOD
+Hostname: $hostname
+Username: $user
+StartTime: $start_pretty
+EndTime:   $end_pretty
+JobDuration: $runtime
+CommandLine: $cmd
+CommandDigest: $cmd_digest
+ReturnCode: $rc
+EOD
+;
+
+# PUT updated job record
+print "+ job record:\n$record" if $verbose >= 2;
+$req->content($record);
+$res = $ua->request($req);
+die "PUT of $url.txt failed: " . $res->status_line unless $res->is_success;
+
+# PUT stdout and stderr, if any
+if ($stdout ne '') {
+  $url = "${base_url}.out";
+  print "+ stdout found, url: $url\n" if $verbose;
+  $req = HTTP::Request->new( PUT => $url );
+  $req->content_type('text/plain');
+  $req->content($stdout);
+  $res = $ua->request($req);
+  die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+}
+if ($stderr ne '') {
+  $url = "${base_url}.err";
+  print "+ stderr found, url: $url\n" if $verbose;
+  $req = HTTP::Request->new( PUT => $url );
+  $req->content_type('text/plain');
+  $req->content($stderr);
+  $res = $ua->request($req);
+  die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+}
+
+# vim:sw=2
