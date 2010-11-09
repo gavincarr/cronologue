@@ -2,12 +2,13 @@
 Summary: cronologue is a cron job logger capturing output to a central server
 Name: cronologue
 Version: 0.1
-Release: 1%{org_tag}%{dist}
+Release: 2%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
 License: GPL
 Group: Application/System
 BuildRoot: %{_tmppath}/%{name}-%{version}
+BuildArch: noarch
 
 %description
 cronologue is a cron job logger. That is, it is a wrapper that executes a 
@@ -15,6 +16,15 @@ command, capturing the stdout and stderr streams produced, and logs a job
 record and these output streams back to a central server. Job records and 
 output files are recorded as plain text files, and pushed to an apache web 
 server via HTTP PUT.
+
+%package server
+Summary: cronologue server package
+Group: Applications/System
+Requires: httpd
+
+%description server
+cronologue server, providing apache configs for capturing job records and
+output streams from cronologue clients, and a GUI for viewing.
 
 %prep
 %setup
@@ -24,9 +34,11 @@ server via HTTP PUT.
 %install
 test "%{buildroot}" != "/" && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_sysconfdir}
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+mkdir -p %{buildroot}%{_localstatedir}/www/%{name}
 install -m0755 %{name} %{buildroot}%{_bindir}
-install -m0755 %{name}.conf %{buildroot}%{_sysconfdir}
+install -m0644 %{name}.conf %{buildroot}%{_sysconfdir}
+install -m0644 server/conf/%{name}.conf %{buildroot}%{_sysconfdir}/httpd/conf.d
 
 %clean
 test "%{buildroot}" != "/" && rm -rf %{buildroot}
@@ -38,6 +50,10 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %doc README COPYING
 %attr(0755,root,root) %{_bindir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.conf
+
+%files server
+%config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
+%attr(0755,apache,apache) %{_localstatedir}/www/%{name}
 
 %changelog
 * Tue Nov 09 2010 Gavin Carr <gavin@openfusion.com.au> 0.1-1
