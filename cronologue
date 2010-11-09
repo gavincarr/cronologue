@@ -46,8 +46,8 @@ my $cmd = join ' ', @ARGV;
 my $cmd_digest = md5_hex $cmd;
 
 # Build base URL
-my $base_url = sprintf "http://%s/cronologue/%s/%s_%s", 
-  $server, $hostname_short, $start_ts, $cmd_digest;
+my $host_url = sprintf "http://%s/cronologue/%s/", $server, $hostname_short;
+my $base_url = sprintf "%s%s_%s", $host_url, $start_ts, $cmd_digest;
 
 # Build initial output
 my $record = <<EOD
@@ -62,13 +62,23 @@ EOD
 my $ua = LWP::UserAgent->new;
 $ua->env_proxy;
 
+# Do a MKCOL on the top-level $host_url, if required
+my $req = HTTP::Request->new( GET => $host_url );
+my $res = $ua->request($req);
+if ($res->code == 404) {
+  print "+ host_url $host_url not found - doing MKCOL\n" if $verbose;
+  $req = HTTP::Request->new( MKCOL => $host_url );
+  $res = $ua->request($req);
+  die "MKCOL to $host_url failed: " . $res->status_line unless $res->is_success;
+}
+
 # PUT initial job record
 my $url = "$base_url.txt";
 print "+ job record url: $url\n" if $verbose;
-my $req = HTTP::Request->new( PUT => $url );
+$req = HTTP::Request->new( PUT => $url );
 $req->content_type('text/plain');
 $req->content($record);
-my $res = $ua->request($req);
+$res = $ua->request($req);
 die "PUT to $url failed: " . $res->status_line unless $res->is_success;
 
 # Run command
