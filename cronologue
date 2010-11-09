@@ -51,11 +51,11 @@ my $base_url = sprintf "http://%s/cronologue/%s/%s_%s",
 
 # Build initial output
 my $record = <<EOD
-Hostname: $hostname
-Username: $user
-StartTime: $start_pretty
-CommandLine: $cmd
-CommandDigest: $cmd_digest
+Hostname:       $hostname
+Username:       $user
+StartTime:      $start_pretty
+CommandLine:    $cmd
+CommandDigest:  $cmd_digest
 EOD
 ;
 
@@ -83,14 +83,14 @@ my $end_pretty = $end_time->strftime('%a, %d %b %Y %H:%M:%S %z');
 my $runtime = $end_time - $start_time;
 
 $record = <<EOD
-Hostname: $hostname
-Username: $user
-StartTime: $start_pretty
-EndTime:   $end_pretty
-JobDuration: $runtime
-CommandLine: $cmd
-CommandDigest: $cmd_digest
-ReturnCode: $rc
+Hostname:       $hostname
+Username:       $user
+StartTime:      $start_pretty
+EndTime:        $end_pretty
+JobDuration:    $runtime
+CommandLine:    $cmd
+CommandDigest:  $cmd_digest
+ReturnCode:     $rc
 EOD
 ;
 
