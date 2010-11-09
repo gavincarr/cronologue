@@ -1,8 +1,8 @@
 
 Summary: cronologue is a cron job logger capturing output to a central server
 Name: cronologue
-Version: 0.1
-Release: 2%{org_tag}%{dist}
+Version: 0.1.1
+Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
 License: GPL
