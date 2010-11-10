@@ -1,5 +1,5 @@
 
-Summary: cronologue is a cron job logger capturing output to a central server
+Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
 Version: 0.1.1
 Release: 1%{org_tag}%{dist}
@@ -11,11 +11,11 @@ BuildRoot: %{_tmppath}/%{name}-%{version}
 BuildArch: noarch
 
 %description
-cronologue is a cron job logger. That is, it is a wrapper that executes a 
-command, capturing the stdout and stderr streams produced, and logs a job 
-record and these output streams back to a central server. Job records and 
-output files are recorded as plain text files, and pushed to an apache web 
-server via HTTP PUT.
+cronologue is a cron job logger i.e. a wrapper that executes a command,
+capturing the stdout and stderr streams produced, and logs a job record
+and these output streams back to a central server. Job records and
+output files are recorded as plain text files, and pushed to an apache
+web server via HTTP PUT.
 
 %package server
 Summary: cronologue server package
@@ -38,7 +38,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}
 install -m0755 %{name} %{buildroot}%{_bindir}
 install -m0644 %{name}.conf %{buildroot}%{_sysconfdir}
-install -m0644 server/conf/%{name}.conf %{buildroot}%{_sysconfdir}/httpd/conf.d
+install -m0644 server/config/apache.conf %{buildroot}%{_sysconfdir}/httpd/conf.d
 
 %clean
 test "%{buildroot}" != "/" && rm -rf %{buildroot}
@@ -58,4 +58,3 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %changelog
 * Tue Nov 09 2010 Gavin Carr <gavin@openfusion.com.au> 0.1-1
 - Initial package, version 0.1.
-
