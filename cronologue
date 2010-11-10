@@ -21,13 +21,21 @@ sub usage {
 }
 
 my $verbose = 0;
-my ($help);
+my ($help, $noop);
 usage unless GetOptions(
   'help|h|?'        => \$help,
   'verbose|v+'      => \$verbose,
+  'noop|n'          => \$noop,
 );
 usage if $help;
 usage unless @ARGV;
+$verbose ||= 1 if $noop;
+
+# Setup a die handler to just exec the given args on error
+local $SIG{__DIE__} = sub { 
+  die @_ if $^S;        # but don't exec inside an eval
+  exec @ARGV;
+};
 
 # Setup config etc.
 my $config_file = $ENV{CRONOLOGUE_CONF} || "/etc/cronologue.conf";
@@ -36,22 +44,29 @@ my $server = $config->{_}->{cronologue_server} || 'localhost';
 my $hostname = hostname;
 (my $hostname_short = $hostname) =~ s/\..*$//;
 my $user = getpwuid($>) || $>;
-my $start_time = gmtime;
-my $start_ts = $start_time->strftime('%Y%m%d%H%M%S');
-my $start_pretty = $start_time->strftime('%a, %d %b %Y %H:%M:%S %z');
-my $cmd = join ' ', @ARGV;
-my $cmd_digest = md5_hex $cmd;
+my $start = gmtime;
+my $start_ts   = $start->strftime('%Y%m%d%H%M%S');
+my $start_long = $start->strftime('%a %d %b %Y %H:%M:%S');
+my $start_date = $start->strftime('%Y-%m-%d');
+my $start_time = $start->strftime('%H:%M:%S');
+my $cmdline = join ' ', @ARGV;
+my $cmd = basename($ARGV[0]);
+my $cmd_digest = md5_hex $cmdline;
 
 # Build base URL
-my $host_url = sprintf "http://%s/cronologue/%s/", $server, $hostname_short;
-my $base_url = sprintf "%s%s_%s", $host_url, $start_ts, $cmd_digest;
+my $host_url = sprintf "http://%s/cronologue/", $server;
+my $url_path = sprintf "%s/%s_%s", $hostname_short, $start_ts, $cmd_digest;
 
 # Build initial output
 my $record = <<EOD
-Hostname:       $hostname
+Hostname:       $hostname_short
+FQDN:           $hostname
 Username:       $user
-StartTime:      $start_pretty
-CommandLine:    $cmd
+StartDatetime:  $start_long
+StartDate:      $start_date
+StartTime:      $start_time
+CommandLine:    $cmdline
+Command:        $cmd
 CommandDigest:  $cmd_digest
 EOD
 ;
@@ -60,23 +75,28 @@ my $ua = LWP::UserAgent->new;
 $ua->env_proxy;
 
 # Do a MKCOL on the top-level $host_url, if required
-my $req = HTTP::Request->new( GET => $host_url );
+my $url = "$host_url$hostname_short/";
+my $req = HTTP::Request->new( GET => $url );
 my $res = $ua->request($req);
 if ($res->code == 404) {
-  print "+ host_url $host_url not found - doing MKCOL\n" if $verbose;
-  $req = HTTP::Request->new( MKCOL => $host_url );
-  $res = $ua->request($req);
-  die "MKCOL to $host_url failed: " . $res->status_line unless $res->is_success;
+  print "+ host url $url not found - doing MKCOL\n" if $verbose;
+  unless ($noop) {
+    $req = HTTP::Request->new( MKCOL => $host_url );
+    $res = $ua->request($req);
+    die "MKCOL to $url failed: " . $res->status_line unless $res->is_success;
+  }
 }
 
 # PUT initial job record
-my $url = "$base_url.txt";
+$url = "$host_url$url_path.txt";
 print "+ job record url: $url\n" if $verbose;
-$req = HTTP::Request->new( PUT => $url );
-$req->content_type('text/plain');
-$req->content($record);
-$res = $ua->request($req);
-die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+unless ($noop) {
+  $req = HTTP::Request->new( PUT => $url );
+  $req->content_type('text/plain');
+  $req->content($record);
+  $res = $ua->request($req);
+  die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+}
 
 # Run command
 my $stdout = 'x' x 10_000; $stdout = '';        # preallocate 10k bytes
@@ -84,47 +104,69 @@ my $stderr = 'x' x 10_000; $stderr = '';        # preallocate 10k bytes
 my $h = harness \@ARGV, \undef, \$stdout, \$stderr;
 $h->run;
 my $rc = $h->result(0);
-my $end_time = gmtime;
-my $end_ts = $end_time->strftime('%Y%m%d%H%M%S');
-my $end_pretty = $end_time->strftime('%a, %d %b %Y %H:%M:%S %z');
-my $runtime = $end_time - $start_time;
+my $end = gmtime;
+my $end_ts   = $end->strftime('%Y%m%d%H%M%S');
+my $end_long = $end->strftime('%a %d %b %Y %H:%M:%S');
+my $end_date = $end->strftime('%Y-%m-%d');
+my $end_time = $end->strftime('%H:%M:%S');
+my $runtime  = $end - $start;
+
+# PUT stdout and stderr, if any
+my $stdout_stderr = '';
+if ($stdout ne '') {
+  my $stdout_path = "$url_path.out";
+  $stdout_stderr .= "Stdout:         $stdout_path\n";
+  $stdout_stderr .= "StdoutSize:     " . length($stdout) . "\n";
+  $url = $host_url . $stdout_path;
+  print "+ stdout found, url: $url\n" if $verbose;
+  unless ($noop) {
+    $req = HTTP::Request->new( PUT => $url );
+    $req->content_type('text/plain');
+    $req->content($stdout);
+    $res = $ua->request($req);
+    die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+  }
+}
+if ($stderr ne '') {
+  my $stderr_path = "$url_path.err";
+  $stdout_stderr .= "Stderr:         $stderr_path\n";
+  $stdout_stderr .= "StderrSize:     " . length($stderr) . "\n";
+  $url = $host_url . $stderr_path;
+  print "+ stderr found, url: $url\n" if $verbose;
+  unless ($noop) {
+    $req = HTTP::Request->new( PUT => $url );
+    $req->content_type('text/plain');
+    $req->content($stderr);
+    $res = $ua->request($req);
+    die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+  }
+}
 
 $record = <<EOD
-Hostname:       $hostname
+Hostname:       $hostname_short
+FQDN:           $hostname
 Username:       $user
-StartTime:      $start_pretty
-EndTime:        $end_pretty
+StartDatetime:  $start_long
+StartDate:      $start_date
+StartTime:      $start_time
+EndDatetime:    $end_long
+EndDate:        $end_date
+EndTime:        $end_time
 JobDuration:    $runtime
-CommandLine:    $cmd
+CommandLine:    $cmdline
+Command:        $cmd
 CommandDigest:  $cmd_digest
 ReturnCode:     $rc
+$stdout_stderr
 EOD
 ;
 
 # PUT updated job record
-print "+ job record:\n$record" if $verbose >= 2;
-$req->content($record);
-$res = $ua->request($req);
-die "PUT of $url.txt failed: " . $res->status_line unless $res->is_success;
-
-# PUT stdout and stderr, if any
-if ($stdout ne '') {
-  $url = "${base_url}.out";
-  print "+ stdout found, url: $url\n" if $verbose;
-  $req = HTTP::Request->new( PUT => $url );
-  $req->content_type('text/plain');
-  $req->content($stdout);
+print "+ job record:\n$record" if $verbose >= 2 or $noop;
+unless ($noop) {
+  $req->content($record);
   $res = $ua->request($req);
-  die "PUT to $url failed: " . $res->status_line unless $res->is_success;
-}
-if ($stderr ne '') {
-  $url = "${base_url}.err";
-  print "+ stderr found, url: $url\n" if $verbose;
-  $req = HTTP::Request->new( PUT => $url );
-  $req->content_type('text/plain');
-  $req->content($stderr);
-  $res = $ua->request($req);
-  die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+  die "PUT of $url.txt failed: " . $res->status_line unless $res->is_success;
 }
 
 # vim:sw=2

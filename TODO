@@ -1,2 +1,8 @@
-- add a die handler to cronologue
-- add a bare command field to job record (basename($0))
+o add a bare command field to job record (basename($0))
+o change job record start_time to start_ts
+o add a start_time time-only field to job record
+o add stdout and stderr paths to job record (if any)
+o have both bare and fully-qualified hostnames in job record
+o add stdout and stderr file sizes to job record
+o make sure timestamps are recording in GMT, not localtime
+o add a die handler to cronologue
