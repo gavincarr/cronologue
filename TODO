@@ -1,0 +1,2 @@
+- add a die handler to cronologue
+- add a bare command field to job record (basename($0))

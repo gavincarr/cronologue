@@ -3,8 +3,6 @@
 # Script to record cron job execution and archive output back to a 
 # central webserver as text files using HTTP PUTs.
 #
-# TODO:
-# - trap errors and make sure command runs
 
 use strict;
 use warnings;
