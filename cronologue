@@ -82,7 +82,7 @@ my $res = $ua->request($req);
 if ($res->code == 404) {
   print "+ host url $url not found - doing MKCOL\n" if $verbose;
   unless ($noop) {
-    $req = HTTP::Request->new( MKCOL => $host_url );
+    $req = HTTP::Request->new( MKCOL => $url );
     $res = $ua->request($req);
     die "MKCOL to $url failed: " . $res->status_line unless $res->is_success;
   }
