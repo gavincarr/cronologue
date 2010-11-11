@@ -53,9 +53,13 @@
   <td class="right">$blosxom::meta{returncode}</td>
 % if ($blosxom::meta{stdoutsize}) {
   <td class="right"><a href="$blosxom::url/data/$blosxom::meta{stdout}">$blosxom::meta{stdoutsize}</a></td>
+% } else {
+  <td>&nbsp;</td>
 % }
 % if ($blosxom::meta{stderrsize}) {
   <td class="right"><a href="$blosxom::url/data/$blosxom::meta{stderr}">$blosxom::meta{stderrsize}</a></td>
+% } else {
+  <td>&nbsp;</td>
 % }
 </tr>
 
