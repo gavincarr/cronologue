@@ -231,6 +231,7 @@ sub entries {
 # to have the mtime to determine how to do the sorting in the first place.
 sub extract_post_timestamp_header {
   my ($story_file, $post_timestamp_header, $post_timestamp_format) = @_;
+  return unless $post_timestamp_header;
   die "(entries_cache_metamail) post_timestamp_format not set - required if using post_timestamp_header\n"
     unless $post_timestamp_format;
 
