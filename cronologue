@@ -31,11 +31,15 @@ usage if $help;
 usage unless @ARGV;
 $verbose ||= 1 if $noop;
 
+# If a single composite argument, treat as a string
+my @cmd = @ARGV;
+my $cmd = @cmd == 1 && $cmd[0] =~ m/\s/ ? $cmd[0] : \@cmd;
+
 # Setup a die handler to just exec the given args on error
 local $SIG{__DIE__} = sub { 
   die @_ if $^S;        # but don't exec inside an eval
   warn @_;
-  exec @ARGV;
+  exec @cmd;
 };
 
 # Setup config etc.
@@ -50,8 +54,8 @@ my $start_ts   = $start->strftime('%Y%m%d%H%M%S');
 my $start_long = $start->strftime('%a %d %b %Y %H:%M:%S');
 my $start_date = $start->strftime('%Y-%m-%d');
 my $start_time = $start->strftime('%H:%M:%S');
-my $cmdline = join ' ', @ARGV;
-my $cmd = basename($ARGV[0]);
+my $cmdline = join ' ', @cmd;
+my $cmd_basename = basename($cmd[0]);
 my $cmd_digest = md5_hex $cmdline;
 
 # Build base URL
@@ -67,7 +71,7 @@ StartDatetime:  $start_long
 StartDate:      $start_date
 StartTime:      $start_time
 CommandLine:    $cmdline
-Command:        $cmd
+Command:        $cmd_basename
 CommandDigest:  $cmd_digest
 EOD
 ;
@@ -102,7 +106,7 @@ unless ($noop) {
 # Run command
 my $stdout = 'x' x 10_000; $stdout = '';        # preallocate 10k bytes
 my $stderr = 'x' x 10_000; $stderr = '';        # preallocate 10k bytes
-my $h = harness \@ARGV, \undef, \$stdout, \$stderr;
+my $h = harness \@cmd, \undef, \$stdout, \$stderr;
 $h->run;
 my $rc = $h->result(0);
 my $end = gmtime;
@@ -155,7 +159,7 @@ EndDate:        $end_date
 EndTime:        $end_time
 JobDuration:    $runtime
 CommandLine:    $cmdline
-Command:        $cmd
+Command:        $cmd_basename
 CommandDigest:  $cmd_digest
 ReturnCode:     $rc
 $stdout_stderr
