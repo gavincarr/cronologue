@@ -1,0 +1,48 @@
+
+# What flavour string to you want to use for your feed?
+$flavour = 'rss';
+#$flavour = 'rss20';
+
+# What email address should be used as the default author email?
+# Recommended format is 'email (name)', but bare emails or mailto emails are ok too
+$author_email = '';
+
+# What name should be used as the default author name?
+# Define this only if you don't want to disclose an email address in $author_email.
+# It will be ignored if $author_email is set.
+$author_name = '';
+
+# What email address should feed errors be reported to?
+# Recommended format is 'email (name)', but bare emails or mailto emails are ok too
+$webmaster_email = '';
+#$webmaster_email = 'webmaster@example.com (Web Master)';
+
+# What do your story permalinks look like?
+# This must be single-quoted, to defer evaluation; blosxom namespace applies
+$permalink = '$url$path/$fn.$default_flavour';
+
+# What link should be used for trackbacks on a story?
+# This must be single-quoted, to defer evaluation; blosxom namespace applies
+$trackback_link = '';
+# $trackback_link = '$url$path/$fn.writeback';
+# $trackback_link = '$url$path/$fn.$feedback::trackback_flavour';
+
+# What title should be used for the feed? If empty, defaults to $blosxom::title.
+$title = '';
+
+# What title should be used for category feed pages? If empty, defaults to 
+# $blosxom::title. This may be a plain string, a sprintf string where $path_info 
+# is interpolated into a %s position, or a code reference that is executed and 
+# passed $path_info and $blosxom::title as parameters.
+$title_category = '';
+
+# A phrase or sentence describing the feed. If empty, defaults to 
+# $blosxom::blog_description.
+$description = '';
+
+# Copyright statement; leave blank to omit.
+$copyright = '';
+
+# Generator that produced this feed
+$generator = "blosxom $blosxom::version";
+

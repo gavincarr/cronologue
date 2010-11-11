@@ -1,0 +1,31 @@
+body {
+  font: normal 13px Helvetica, Arial, sans-serif;
+  color: #000;
+  margin: 3px 8px;
+}
+h1 {
+  color: #006;
+  margin-top: 0px;
+  margin-left: 4px;
+}
+h2 {
+  font-size: 16px;
+  color: #006;
+  margin-left: 4px;
+  margin-bottom: 3px;
+}
+h1 a, h2 a {
+  text-decoration: none;
+  color: #006;
+}
+th {
+  text-align: left;
+  color: #006;
+  padding: 0px 4px;
+}
+td {
+  padding: 0px 4px;
+}
+.right {
+  text-align: right;
+}

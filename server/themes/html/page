@@ -1,0 +1,68 @@
+<!-- blosxom content_type text/html; charset=utf-8 -->
+
+<!-- blosxom head -->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+            "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="$theme::theme_dir_url/main.css" type="text/css">
+%# <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+%# <link rel="alternate feed" type="application/rss+xml" title="PlanetAUX All Company Announcements Feed" href="/rss/">
+% if ($blosxom::path_info) {
+<title>$blog_title - $blosxom::path_info</title>
+% } else {
+<title>$blog_title</title>
+% }
+</head>
+<body>
+% if ($blosxom::path_info_full) {
+<h1><a href="$blosxom::url/" alt="Cronologue Home">$blog_title</a></h1>
+% } else {
+<h1>$blog_title</h1>
+% }
+% $blosxom::global{date} = 0;
+
+<!-- blosxom date -->
+% if ($blosxom::global{date}) {
+</table>
+% }
+<h2><a href="$blosxom::url/$blosxom::yr/$blosxom::mo_num/$blosxom::da">$blosxom::dw $blosxom::da $blosxom::mo $blosxom::yr</a></h2>
+
+<table>
+<tr>
+  <th>Hostname</th>
+  <th>User</th>
+  <th>Start Time</th>
+  <th>Duration (s)</th>
+  <th>Command</th>
+  <th>Return Code</th>
+  <th>Stdout</th>
+  <th>Stderr</th>
+</tr>
+% $blosxom::global{date} = 1;
+
+<!-- blosxom story -->
+<tr>
+  <td><a href="$blosxom::url/$blosxom::meta{hostname}">$blosxom::meta{hostname}</a></td>
+  <td>$blosxom::meta{username}</td>
+  <td>$blosxom::meta{starttime}</td>
+  <td class="right">$blosxom::meta{jobduration}</td>
+  <td>$blosxom::meta{commandline}</td>
+  <td class="right">$blosxom::meta{returncode}</td>
+% if ($blosxom::meta{stdoutsize}) {
+  <td class="right"><a href="$blosxom::url/data/$blosxom::meta{stdout}">$blosxom::meta{stdoutsize}</a></td>
+% }
+% if ($blosxom::meta{stderrsize}) {
+  <td class="right"><a href="$blosxom::url/data/$blosxom::meta{stderr}">$blosxom::meta{stderrsize}</a></td>
+% }
+</tr>
+
+<!-- blosxom foot -->
+% if ($blosxom::global{date}) {
+</table>
+% }
+</body>
+</html>
+
+%# vim:ft=html
