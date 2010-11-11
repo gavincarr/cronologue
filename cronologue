@@ -89,14 +89,14 @@ if ($res->code == 404) {
 }
 
 # PUT initial job record
-$url = "$host_url$url_path.txt";
-print "+ job record url: $url\n" if $verbose;
+my $job_url = "$host_url$url_path.txt";
+print "+ job record url: $job_url\n" if $verbose;
 unless ($noop) {
-  $req = HTTP::Request->new( PUT => $url );
+  $req = HTTP::Request->new( PUT => $job_url );
   $req->content_type('text/plain');
   $req->content($record);
   $res = $ua->request($req);
-  die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+  die "PUT to $job_url failed: " . $res->status_line unless $res->is_success;
 }
 
 # Run command
@@ -163,11 +163,13 @@ EOD
 ;
 
 # PUT updated job record
+print "+ job record url: $job_url\n" if $verbose;
 print "+ job record:\n$record" if $verbose >= 2 or $noop;
 unless ($noop) {
+  $req = HTTP::Request->new( PUT => $job_url );
   $req->content($record);
   $res = $ua->request($req);
-  die "PUT of $url.txt failed: " . $res->status_line unless $res->is_success;
+  die "PUT to $job_url failed: " . $res->status_line unless $res->is_success;
 }
 
 # vim:sw=2
