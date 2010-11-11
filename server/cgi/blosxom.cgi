@@ -270,6 +270,8 @@ use File::Find;
 use File::stat;
 use Time::Local;
 use CGI qw/:standard :netscape/;
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
 
 $version = "2.1.2+dev";
 
