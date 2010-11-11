@@ -26,6 +26,9 @@ th {
 td {
   padding: 0px 4px;
 }
+tr:hover {
+  background-color: #ff9;
+}
 .right {
   text-align: right;
 }
