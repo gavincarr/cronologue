@@ -1,7 +1,7 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.2
+Version: 0.2.1
 Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
@@ -56,6 +56,9 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %attr(0755,apache,apache) %{_localstatedir}/www/%{name}
 
 %changelog
+* Thu Nov 11 2010 Gavin Carr <gavin@openfusion.com.au> 0.2.1-1
+- Bugfix for final job record PUT in cronologue.
+
 * Wed Nov 10 2010 Gavin Carr <gavin@openfusion.com.au> 0.2-1
 - Lots of tweaks to cronologue client, further filling out job record.
 
