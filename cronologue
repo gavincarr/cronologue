@@ -34,6 +34,7 @@ $verbose ||= 1 if $noop;
 # Setup a die handler to just exec the given args on error
 local $SIG{__DIE__} = sub { 
   die @_ if $^S;        # but don't exec inside an eval
+  warn @_;
   exec @ARGV;
 };
 
