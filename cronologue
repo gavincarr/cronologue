@@ -12,7 +12,7 @@ use Config::Tiny;
 use Sys::Hostname;
 use Time::Piece;
 use Digest::MD5 qw(md5_hex);
-use IPC::Run qw(harness);
+use IPC::Run3;
 use LWP::UserAgent;
 use HTTP::Request;
 
@@ -31,15 +31,19 @@ usage if $help;
 usage unless @ARGV;
 $verbose ||= 1 if $noop;
 
-# If a single composite argument, treat as a string
 my @cmd = @ARGV;
-my $cmd = @cmd == 1 && $cmd[0] =~ m/\s/ ? $cmd[0] : \@cmd;
+my $cmd = \@cmd;
+# If a single composite argument, pass to run3 as a string (for shell eval)
+if (@cmd == 1 && $cmd[0] =~ m/\s/) {
+  $cmd = $cmd[0];
+  @cmd = split /\s+/, $cmd;
+}
 
 # Setup a die handler to just exec the given args on error
 local $SIG{__DIE__} = sub { 
   die @_ if $^S;        # but don't exec inside an eval
   warn @_;
-  exec @cmd;
+  exec(ref $cmd ? @$cmd : $cmd);
 };
 
 # Setup config etc.
@@ -106,9 +110,8 @@ unless ($noop) {
 # Run command
 my $stdout = 'x' x 10_000; $stdout = '';        # preallocate 10k bytes
 my $stderr = 'x' x 10_000; $stderr = '';        # preallocate 10k bytes
-my $h = harness \@cmd, \undef, \$stdout, \$stderr;
-$h->run;
-my $rc = $h->result(0);
+run3 $cmd, \undef, \$stdout, \$stderr;
+my $rc = $?;
 my $end = gmtime;
 my $end_ts   = $end->strftime('%Y%m%d%H%M%S');
 my $end_long = $end->strftime('%a %d %b %Y %H:%M:%S');
@@ -167,7 +170,6 @@ EOD
 ;
 
 # PUT updated job record
-print "+ job record url: $job_url\n" if $verbose;
 print "+ job record:\n$record" if $verbose >= 2 or $noop;
 unless ($noop) {
   $req = HTTP::Request->new( PUT => $job_url );
