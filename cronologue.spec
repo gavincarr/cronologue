@@ -1,7 +1,7 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.3
+Version: 0.3.1
 Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
@@ -74,13 +74,19 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %dir %attr(2755,root,apache) %{_localstatedir}/www/%{name}
 %dir %attr(2755,apache,apache) %{_localstatedir}/www/%{name}/data
 %dir %attr(2755,apache,apache) %{_localstatedir}/www/%{name}/state
+%dir %{_localstatedir}/www/%{name}/config
 %attr(0755,root,apache) %{_localstatedir}/www/%{name}/cgi/*
-%{_localstatedir}/www/%{name}/config
+%config(noreplace) %{_localstatedir}/www/%{name}/config/*
 %{_localstatedir}/www/%{name}/lib
 %{_localstatedir}/www/%{name}/plugins
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Thu Nov 11 2010 Gavin Carr <gavin@openfusion.com.au> 0.3.1-1
+- Migrate cronologue from IPC::Run to IPC::Run3 for exec $scalar support.
+- Fix buglet with cronologue MKCOL url.
+- Minor gui tweakages.
+
 * Thu Nov 11 2010 Gavin Carr <gavin@openfusion.com.au> 0.3-1
 - Initial gui version, included in server package.
 
