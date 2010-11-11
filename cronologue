@@ -55,7 +55,7 @@ my $cmd = basename($ARGV[0]);
 my $cmd_digest = md5_hex $cmdline;
 
 # Build base URL
-my $host_url = sprintf "http://%s/cronologue/", $server;
+my $host_url = sprintf "http://%s/cronologue/data/", $server;
 my $url_path = sprintf "%s/%s_%s", $hostname_short, $start_ts, $cmd_digest;
 
 # Build initial output
