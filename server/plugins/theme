@@ -31,7 +31,6 @@ my $fh = new FileHandle;
 my $cache = {};
 
 sub start {
-print STDERR "theme_dir: $theme_dir\n";
   return -r $theme_dir ? 1 : 0;
 }
 
