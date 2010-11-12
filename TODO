@@ -6,3 +6,11 @@ o have both bare and fully-qualified hostnames in job record
 o add stdout and stderr file sizes to job record
 o make sure timestamps are recording in GMT, not localtime
 o add a die handler to cronologue
+o add a meta refresh header to gui
+
+- get rss feed working
+
+- add previous and next links to date-based pages
+- add a config item and cronologue options to indicate "don't record job record unless output"
+- add a use_fully_qualified_hostnames config item
+

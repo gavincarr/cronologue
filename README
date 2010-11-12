@@ -1,10 +1,11 @@
-cronologue is a cron logger inspired by Vladimir Vuksan's cronologger,
-but implemented differently. 
+Cronologue
+==========
 
-cronologue a wrapper that executes a command, capturing the stdout and
-stderr streams produced, and logs a job record and these output streams
-back to a central server. Job records and output files are recorded as
-plain text files, and pushed to an apache web server via HTTP PUT.
+cronologue is a cron logger i.e. a wrapper that executes a command, 
+capturing any stdout and stderr streams produced, and logging a job 
+record and these output streams back to a central log server. Job 
+records and output files are recorded as plain text files, and 
+pushed to an apache web server via HTTP PUT.
 
 The following items are captured:
 - hostname the script ran on
@@ -16,4 +17,58 @@ The following items are captured:
 - command line
 - stdout stream (if any)
 - stderr stream (if any)
+
+Cronologue is written in perl, and requires the following perl modules:
+
+- Config::Tiny
+- Digest::MD5
+- Time::Piece
+- IPC::Run3
+- LWP::UserAgent
+
+Cronologue includes an apache config for configuring apache to accept 
+the job record and stream files, which requires apache mod_dav.
+
+Cronologue also includes a web gui built using blosxom (included),
+which requires apache mod_cgi.
+
+
+Installation
+------------
+
+TODO
+
+
+
+
+Acknowledgements
+----------------
+
+cronologue is inspired by Vladimir Vuksan's cronologger 
+(https://github.com/vvuksan/cronologger), which uses couch db to store
+job records, and a simple php web interface.
+
+
+
+Author
+------
+
+Copyright 2010 Gavin Carr <gavin@openfusion.net>.
+
+
+Licence
+-------
+
+Cronologue is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
