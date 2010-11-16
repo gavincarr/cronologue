@@ -111,7 +111,7 @@ unless ($noop) {
 my $stdout = 'x' x 10_000; $stdout = '';        # preallocate 10k bytes
 my $stderr = 'x' x 10_000; $stderr = '';        # preallocate 10k bytes
 run3 $cmd, \undef, \$stdout, \$stderr;
-my $rc = $?;
+my $rc = $? >> 8;
 my $end = gmtime;
 my $end_ts   = $end->strftime('%Y%m%d%H%M%S');
 my $end_long = $end->strftime('%a %d %b %Y %H:%M:%S');
