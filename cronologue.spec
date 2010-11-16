@@ -1,7 +1,7 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.3.1
+Version: 0.4
 Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
@@ -42,6 +42,8 @@ mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/lib/Blosxom
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/plugins
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/state
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/html
+mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/cronologue1
+mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/images
 # Client
 install -m0755 %{name} %{buildroot}%{_bindir}
 install -m0644 %{name}.conf %{buildroot}%{_sysconfdir}
@@ -55,7 +57,9 @@ install -m0644 server/config/theme %{buildroot}%{_localstatedir}/www/%{name}/con
 install -m0644 server/lib/Blosxom/* %{buildroot}%{_localstatedir}/www/%{name}/lib/Blosxom
 install -m0644 server/plugins/* %{buildroot}%{_localstatedir}/www/%{name}/plugins
 install -m0644 server/themes/*.css %{buildroot}%{_localstatedir}/www/%{name}/themes
-install -m0644 server/themes/html/page %{buildroot}%{_localstatedir}/www/%{name}/themes/html/page
+install -m0644 server/themes/cronologue1/page %{buildroot}%{_localstatedir}/www/%{name}/themes/cronologue1/page
+install -m0644 server/themes/images/* %{buildroot}%{_localstatedir}/www/%{name}/themes/images
+cd %{buildroot}%{_localstatedir}/www/%{name}/themes/html && ln -s ../cronologue1/page
 
 %clean
 test "%{buildroot}" != "/" && rm -rf %{buildroot}
@@ -82,6 +86,11 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Tue Nov 16 2010 Gavin Carr <gavin@openfusion.com.au> 0.4-1
+- Get RSS feeds working, and add links to page template.
+- Make tables more explicit and tweak styling.
+- Fix buglet with cronologue return code not being >> 8.
+
 * Thu Nov 11 2010 Gavin Carr <gavin@openfusion.com.au> 0.3.1-1
 - Migrate cronologue from IPC::Run to IPC::Run3 for exec $scalar support.
 - Fix buglet with cronologue MKCOL url.
