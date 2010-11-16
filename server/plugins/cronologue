@@ -1,0 +1,50 @@
+# Blosxom Plugin: cronologue
+# Description: cronologue-specific stuff
+# Author(s): Gavin Carr <gavin@openfusion.com.au>
+# Version: 0.001
+# Requires: metamail
+# Follows: metamail
+
+package cronologue;
+
+use strict;
+
+# Uncomment next line to enable debug output (don't uncomment debug() lines)
+#use Blosxom::Debug debug_level => 1;
+
+# --- Configurable variables -----
+
+# None
+
+# --------------------------------
+
+sub start { 1 }
+
+sub story {
+  my ($pkg, $path, $filename, $story_ref, $title_ref, $body_ref) = @_;
+
+  if ($blosxom::flavour eq 'rss') {
+    my $meta = \%blosxom::meta;
+
+    # For RSS, construct title and body content from metadata
+    $$title_ref = sprintf "[%s, %s, %s] %s %s",
+      $meta->{hostname}, $meta->{username}, $meta->{starttime},
+      $meta->{commandline}, 
+      $meta->{returncode} == 0 ? '' : '[' . $meta->{returncode} . ']';
+
+    $$body_ref = '';
+    $$body_ref .= sprintf qq(<a href="%s/data/%s" title="%s">%s</a> (%s)\n),
+      $blosxom::url, $meta->{stdout}, 'Stdout Stream', 'Stdout', $meta->{stdoutsize}
+        if $meta->{stdoutsize};
+    $$body_ref .= sprintf qq(<a href="%s/data/%s" title="%s">%s</a> (%s)\n),
+      $blosxom::url, $meta->{stderr}, 'Stderr Stream', 'Stderr', $meta->{stderrsize}
+        if $meta->{stderrsize};
+  }
+
+  return 1;
+}
+
+1;
+
+__END__
+
