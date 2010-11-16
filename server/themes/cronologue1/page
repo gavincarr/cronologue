@@ -12,7 +12,7 @@
 % if ($blosxom::path_info) {
 <link rel="alternate feed" type="application/rss+xml" title="Cronologue RSS Feed for $blosxom::path_info" href="$blosxom::url/$blosxom::path_info/rss/">
 % }
-%# <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="$theme::theme_dir_url/images/clock.png" type="image/png">
 % if ($blosxom::path_info) {
 <title>$blog_title - $blosxom::path_info</title>
 % } else {
