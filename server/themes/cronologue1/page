@@ -8,9 +8,9 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta http-equiv="refresh" content="300">
 <link rel="stylesheet" type="text/css" href="$theme::theme_dir_url/main.css" type="text/css">
-<link rel="alternate feed" type="application/rss+xml" title="Cronologue RSS Feed" href="/rss/">
+<link rel="alternate feed" type="application/rss+xml" title="Cronologue RSS Feed" href="$blosxom::url/rss/">
 % if ($blosxom::path_info) {
-<link rel="alternate feed" type="application/rss+xml" title="Cronologue RSS Feed for $blosxom::path_info" href="/$blosxom::path_info/rss/">
+<link rel="alternate feed" type="application/rss+xml" title="Cronologue RSS Feed for $blosxom::path_info" href="$blosxom::url/$blosxom::path_info/rss/">
 % }
 %# <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
 % if ($blosxom::path_info) {
@@ -25,6 +25,12 @@
 % } else {
 <h1>$blog_title</h1>
 % }
+<div id="feeds">
+<a class="feedicon" href="$blosxom::url/rss/" title="Cronologue RSS Feed"><img src="$theme::theme_dir_url/images/feed-icon-28x28.png" alt="Cronologue RSS Feed"></a>
+% if ($blosxom::path_info) {
+<a class="feedicon" href="$blosxom::url/$blosxom::path_info/rss/" title="Cronologue RSS Feed for $blosxom::path_info"><img src="$theme::theme_dir_url/images/feed-icon-28x28.png" alt="Cronologue RSS Feed"></a>
+% }
+</div>
 % $blosxom::global{row} = 0;
 
 <!-- blosxom date -->
