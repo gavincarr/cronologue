@@ -25,10 +25,10 @@
 % } else {
 <h1>$blog_title</h1>
 % }
-% $blosxom::global{date} = 0;
+% $blosxom::global{row} = 0;
 
 <!-- blosxom date -->
-% if ($blosxom::global{date}) {
+% if ($blosxom::global{row}) {
 </table>
 % }
 <h2><a href="$blosxom::url/$blosxom::yr/$blosxom::mo_num/$blosxom::da">$blosxom::dw $blosxom::da $blosxom::mo $blosxom::yr</a></h2>
@@ -44,10 +44,15 @@
   <th>Stdout</th>
   <th>Stderr</th>
 </tr>
-% $blosxom::global{date} = 1;
 
 <!-- blosxom story -->
+% $blosxom::global{row}++;
+
+% if ($blosxom::global{row} % 2 == 0) {
+<tr class="stripe">
+% } else {
 <tr>
+% }
   <td><a href="$blosxom::url/$blosxom::meta{hostname}">$blosxom::meta{hostname}</a></td>
   <td>$blosxom::meta{username}</td>
   <td>$blosxom::meta{starttime}</td>
@@ -67,7 +72,7 @@
 </tr>
 
 <!-- blosxom foot -->
-% if ($blosxom::global{date}) {
+% if ($blosxom::global{row}) {
 </table>
 % }
 </body>
