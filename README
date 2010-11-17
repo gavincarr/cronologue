@@ -18,7 +18,8 @@ The following items are captured:
 - stdout stream (if any)
 - stderr stream (if any)
 
-Cronologue is written in perl, and requires the following perl modules:
+The cronologue client is written in perl, and requires the following
+perl modules:
 
 - Config::Tiny
 - Digest::MD5
@@ -26,8 +27,8 @@ Cronologue is written in perl, and requires the following perl modules:
 - IPC::Run3
 - LWP::UserAgent
 
-Cronologue includes an apache config for configuring apache to accept 
-the job record and stream files, which requires apache mod_dav.
+The cronologue server uses apache with mod_dav for recording job
+records and output streams as text files.
 
 Cronologue also includes a web gui built using blosxom (included),
 which requires apache mod_cgi.
@@ -36,9 +37,32 @@ which requires apache mod_cgi.
 Installation
 ------------
 
-TODO
+RPM packages for CentOS/RHEL5 are available from my yum repository.
+See http://www.openfusion.net/linux/openfusion_rpm_repository for
+details.
 
+Otherwise ...
 
+Client: 
+- run 'perl -c cronologue' to check you have all the required perl modules
+- copy 'cronologue' to somewhere in your path
+- if you want to use the 'cronologue.conf' file (which currently only sets
+  'cronologue_server' to something other than 'localhost'), copy it to
+  /etc/cronologue.conf
+
+Server:
+- edit server/config/apache.conf and adjust Allow directives
+- copy server/config/apache.conf to your apache conf.d directory
+- create a /var/www/cronologue directory
+- copy the contents of the server directory to /var/www/cronologue
+  e.g. sudo cp -r server/* /var/www/cronologue
+- check that mod_cgi and mod_dav are enabled in your apache config
+- restart apache
+- go to http://yourhost.example.com/cronologue
+
+Test using: 'cronologue echo "Hello World"'. This should succeed, and you 
+should get a job record showing up on the web interface (and a file in
+/var/www/cronologue/data/<hostname>).
 
 
 Acknowledgements
