@@ -1,7 +1,7 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.4
+Version: 0.5
 Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
@@ -35,6 +35,7 @@ output streams from cronologue clients, and a GUI for viewing.
 test "%{buildroot}" != "/" && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+mkdir -p %{buildroot}%{_mandir}/man1
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/cgi
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/config
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/data
@@ -47,6 +48,7 @@ mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/images
 # Client
 install -m0755 %{name} %{buildroot}%{_bindir}
 install -m0644 %{name}.conf %{buildroot}%{_sysconfdir}
+pod2man %{name} > %{buildroot}%{_mandir}/man1/%{name}.1
 # Server
 install -m0755 server/cgi/blosxom.cgi %{buildroot}%{_localstatedir}/www/%{name}/cgi
 install -m0644 server/config/apache.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/%{name}.conf
@@ -71,6 +73,7 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %doc README COPYING
 %attr(0755,root,root) %{_bindir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.conf
+%{_mandir}/man1/%{name}*
 
 %files server
 %defattr(-,root,apache)
@@ -86,6 +89,12 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Fri Nov 19 2010 Gavin Carr <gavin@openfusion.com.au> 0.5-1
+- Add report=always|stream to config, and -a|-s options to cronologue.
+- Add --config|-c <config_file> option to cronologue.
+- Fill out cronologue perldocs a bit more.
+- Add a man page to the spec file.
+
 * Tue Nov 16 2010 Gavin Carr <gavin@openfusion.com.au> 0.4-1
 - Get RSS feeds working, and add links to page template.
 - Make tables more explicit and tweak styling.
