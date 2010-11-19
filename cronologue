@@ -17,18 +17,22 @@ use LWP::UserAgent;
 use HTTP::Request;
 
 sub usage {
-  die "usage: " . basename($0) . " <command> <args>\n";
+  die "usage: " . basename($0) . " [-a|-s] [-n] [-v] <command> <args>\n";
 }
 
 my $verbose = 0;
-my ($help, $noop);
+my ($help, $noop, $stream, $always);
 usage unless GetOptions(
   'help|h|?'        => \$help,
   'verbose|v+'      => \$verbose,
   'noop|n'          => \$noop,
+  'stream|s'        => \$stream,
+  'always|a'        => \$always,
 );
 usage if $help;
 usage unless @ARGV;
+usage "Cannot specify both --always and --stream\n"
+  if $stream && $always;
 $verbose ||= 1 if $noop;
 
 my @cmd = @ARGV;
@@ -50,6 +54,7 @@ local $SIG{__DIE__} = sub {
 my $config_file = $ENV{CRONOLOGUE_CONF} || "/etc/cronologue.conf";
 my $config = Config::Tiny->read($config_file) if -f $config_file;
 my $server = $config->{_}->{cronologue_server} || 'localhost';
+$stream ||= 1 if ($config->{_}->{record} || 'always') eq 'stream' && ! $always;
 my $hostname = hostname;
 (my $hostname_short = $hostname) =~ s/\..*$//;
 my $user = getpwuid($>) || $>;
@@ -65,20 +70,6 @@ my $cmd_digest = md5_hex $cmdline;
 # Build base URL
 my $host_url = sprintf "http://%s/cronologue/data/", $server;
 my $url_path = sprintf "%s/%s_%s", $hostname_short, $start_ts, $cmd_digest;
-
-# Build initial output
-my $record = <<EOD
-Hostname:       $hostname_short
-FQDN:           $hostname
-Username:       $user
-StartDatetime:  $start_long
-StartDate:      $start_date
-StartTime:      $start_time
-CommandLine:    $cmdline
-Command:        $cmd_basename
-CommandDigest:  $cmd_digest
-EOD
-;
 
 my $ua = LWP::UserAgent->new;
 $ua->env_proxy;
@@ -96,15 +87,34 @@ if ($res->code == 404) {
   }
 }
 
-# PUT initial job record
 my $job_url = "$host_url$url_path.txt";
 print "+ job record url: $job_url\n" if $verbose;
-unless ($noop) {
-  $req = HTTP::Request->new( PUT => $job_url );
-  $req->content_type('text/plain');
-  $req->content($record);
-  $res = $ua->request($req);
-  die "PUT to $job_url failed: " . $res->status_line unless $res->is_success;
+my $record;
+
+# PUT initial job record (unless $stream)
+if (! $stream) {
+  # Build initial output
+  $record = <<EOD
+Hostname:       $hostname_short
+FQDN:           $hostname
+Username:       $user
+StartDatetime:  $start_long
+StartDate:      $start_date
+StartTime:      $start_time
+CommandLine:    $cmdline
+Command:        $cmd_basename
+CommandDigest:  $cmd_digest
+EOD
+;
+
+  # PUT initial job record
+  unless ($noop) {
+    $req = HTTP::Request->new( PUT => $job_url );
+    $req->content_type('text/plain');
+    $req->content($record);
+    $res = $ua->request($req);
+    die "PUT to $job_url failed: " . $res->status_line unless $res->is_success;
+  }
 }
 
 # Run command
@@ -150,7 +160,8 @@ if ($stderr ne '') {
   }
 }
 
-$record = <<EOD
+if (! $stream || $stdout_stderr) {
+  $record = <<EOD
 Hostname:       $hostname_short
 FQDN:           $hostname
 Username:       $user
@@ -169,13 +180,47 @@ $stdout_stderr
 EOD
 ;
 
-# PUT updated job record
-print "+ job record:\n$record" if $verbose >= 2 or $noop;
-unless ($noop) {
-  $req = HTTP::Request->new( PUT => $job_url );
-  $req->content($record);
-  $res = $ua->request($req);
-  die "PUT to $job_url failed: " . $res->status_line unless $res->is_success;
+  # PUT updated job record
+  print "+ job record:\n$record" if $verbose >= 2 or $noop;
+  unless ($noop) {
+    $req = HTTP::Request->new( PUT => $job_url );
+    $req->content($record);
+    $res = $ua->request($req);
+    die "PUT to $job_url failed: " . $res->status_line unless $res->is_success;
+  }
 }
+
+__END__
+
+=head1 NAME
+
+cronologue is a cron logger that executes a command, and logs the output
+streams and a job record back to a central log server.
+
+=head1 SYNOPSIS
+
+  cronologue [-s] [-n] [-v] <cmd> <args>
+
+=head1 DESCRIPTION
+
+cronologue is a cron logger i.e. a wrapper that executes a command, capturing 
+any stdout and stderr streams produced, and logs a job record and those output 
+streams back to a central log server. Job records and output files are recorded 
+as plain text files, and pushed to an apache web server via HTTP PUT.
+
+=head1 AUTHOR
+
+Gavin Carr <gavin@openfusion.com.au>
+
+=head1 COPYRIGHT AND LICENCE
+
+Copyright (C) Gavin Carr 2010. 
+
+This library is free software; you can redistribute it and/or modify it 
+under the same terms as Perl itself, either Perl version 5.8.0 or, at 
+your option, any later version of Perl 5.
+
+=cut
+
 
 # vim:sw=2

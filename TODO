@@ -7,10 +7,10 @@ o add stdout and stderr file sizes to job record
 o make sure timestamps are recording in GMT, not localtime
 o add a die handler to cronologue
 o add a meta refresh header to gui
-- get rss feed working
+o get rss feed working
+o add record = always|stream config item and -a|-s options
 
 
-- add a config item and option to indicate "don't record job record unless there's output"
 - add a -c|--config option to specify config file
 - add a -S|--server option to specify server
 - add a use_fully_qualified_hostnames config item
