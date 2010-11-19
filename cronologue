@@ -53,7 +53,7 @@ local $SIG{__DIE__} = sub {
 # Setup config etc.
 my $config_file = $ENV{CRONOLOGUE_CONF} || "/etc/cronologue.conf";
 my $config = Config::Tiny->read($config_file) if -f $config_file;
-my $server = $config->{_}->{cronologue_server} || 'localhost';
+my $server = $config->{_}->{server} || $config->{_}->{cronologue_server} || 'localhost';
 $stream ||= 1 if ($config->{_}->{record} || 'always') eq 'stream' && ! $always;
 my $hostname = hostname;
 (my $hostname_short = $hostname) =~ s/\..*$//;
@@ -199,7 +199,7 @@ streams and a job record back to a central log server.
 
 =head1 SYNOPSIS
 
-  cronologue [-s] [-n] [-v] <cmd> <args>
+  cronologue [-a|-s] [-n] [-v] <cmd> <args>
 
 =head1 DESCRIPTION
 
@@ -207,6 +207,45 @@ cronologue is a cron logger i.e. a wrapper that executes a command, capturing
 any stdout and stderr streams produced, and logs a job record and those output 
 streams back to a central log server. Job records and output files are recorded 
 as plain text files, and pushed to an apache web server via HTTP PUT.
+
+=head2 CONFIG FILE
+
+Some cronologue settings can be configured in a config file located in 
+'/etc/cronologue.conf'. The default settings and file format is:
+
+  # Web server to which we PUT job record and output text files
+  server = localhost
+
+  # When to create a job record [always|stream]
+  # stream means only create a job record if there is stdout or stderr output
+  record = always
+
+=head2 OPTIONS
+
+=over 4
+
+=item --always | -a
+
+Always log a job record, irrespective of whether any stdout or stderr streams 
+are produced. Equivalent to 'record = always' in the cronologue config file, 
+and overrides 'record = stream'.
+
+=item --stream | -s
+
+Only log a job record if any stdout or stderr output is produced by command.
+Equivalent to 'record = stream' in the cronologue config file, and overrides
+'record = always' (which is the default).
+
+=item --noop | -n
+
+Run the given command, but don't actually log any output back to the log server, 
+just show what would be logged. Useful for testing. Implies --verbose.
+
+=item --verbose | -v
+
+Produce verbose output for debugging.
+
+=back
 
 =head1 AUTHOR
 
