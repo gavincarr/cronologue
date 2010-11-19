@@ -9,9 +9,9 @@ o add a die handler to cronologue
 o add a meta refresh header to gui
 o get rss feed working
 o add record = always|stream config item and -a|-s options
+o add a -c|--config option to specify config file
 
 
-- add a -c|--config option to specify config file
 - add a -S|--server option to specify server
 - add a use_fully_qualified_hostnames config item
 - add previous and next links to date-based pages

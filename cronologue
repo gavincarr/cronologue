@@ -21,6 +21,7 @@ sub usage {
 }
 
 my $verbose = 0;
+my $config_file = $ENV{CRONOLOGUE_CONF} || '/etc/cronologue.conf';
 my ($help, $noop, $stream, $always);
 usage unless GetOptions(
   'help|h|?'        => \$help,
@@ -28,6 +29,7 @@ usage unless GetOptions(
   'noop|n'          => \$noop,
   'stream|s'        => \$stream,
   'always|a'        => \$always,
+  'config|c=s'      => \$config_file,
 );
 usage if $help;
 usage unless @ARGV;
@@ -51,7 +53,6 @@ local $SIG{__DIE__} = sub {
 };
 
 # Setup config etc.
-my $config_file = $ENV{CRONOLOGUE_CONF} || "/etc/cronologue.conf";
 my $config = Config::Tiny->read($config_file) if -f $config_file;
 my $server = $config->{_}->{server} || $config->{_}->{cronologue_server} || 'localhost';
 $stream ||= 1 if ($config->{_}->{record} || 'always') eq 'stream' && ! $always;
@@ -223,6 +224,10 @@ Some cronologue settings can be configured in a config file located in
 =head2 OPTIONS
 
 =over 4
+
+=item --config | -c <config_file>
+
+Use the specified config file instead of the default '/etc/cronologue.conf'.
 
 =item --always | -a
 
