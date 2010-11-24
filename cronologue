@@ -246,6 +246,11 @@ Only log a job record if any stdout or stderr output is produced by command.
 Equivalent to 'record = stream' in the cronologue config file, and overrides
 'record = always' (which is the default).
 
+=item --passthru | -p
+
+Pass through any stdout output to STDOUT, and stderr output to STDERR, to 
+generate cron email output as normal.
+
 =item --noop | -n
 
 Run the given command, but don't actually log any output back to the log server, 
