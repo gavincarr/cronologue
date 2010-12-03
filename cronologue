@@ -219,7 +219,7 @@ streams and a job record back to a central log server.
 
 =head1 SYNOPSIS
 
-  cronologue [-a|-s] [-n] [-v] <cmd> <args>
+  cronologue [--always|--stream|--error] [-n] [-v] <cmd> <args>
 
 =head1 DESCRIPTION
 
