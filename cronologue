@@ -17,26 +17,35 @@ use LWP::UserAgent;
 use HTTP::Request;
 
 sub usage {
-  die "usage: " . basename($0) . " [--always|--stream] [--passthru] [-n] [-v] <command> <args>\n";
+  print @_ if @_;
+  die "usage: " . basename($0) . " [--always|--stream|--error] [--passthru] [-n] [-v] <command> <args>\n";
 }
 
 my $verbose = 0;
+my $always = 0;
+my $stream = 0;
+my $error = 0;
 my $config_file = $ENV{CRONOLOGUE_CONF} || '/etc/cronologue.conf';
-my ($help, $noop, $stream, $always, $passthru);
+my ($help, $noop, $passthru);
 usage unless GetOptions(
   'help|h|?'        => \$help,
   'verbose|v+'      => \$verbose,
   'noop|n'          => \$noop,
-  'stream|s'        => \$stream,
   'always|a'        => \$always,
+  'stream|s'        => \$stream,
+  'error|e'         => \$error,
   'passthru|p'      => \$passthru,
   'config|c=s'      => \$config_file,
 );
 usage if $help;
 usage unless @ARGV;
-usage "Cannot specify both --always and --stream\n"
-  if $stream && $always;
+usage "Cannot specify more than one of --always | --stream | --error\n"
+  if $stream + $always + $error > 1;
 $verbose ||= 1 if $noop;
+
+my $record = $always ? 'always' : 
+             $stream ? 'stream' : 
+             $error  ? 'error'  : '';
 
 my @cmd = @ARGV;
 my $cmd = \@cmd;
@@ -56,7 +65,7 @@ local $SIG{__DIE__} = sub {
 # Setup config etc.
 my $config = Config::Tiny->read($config_file) if -f $config_file;
 my $server = $config->{_}->{server} || $config->{_}->{cronologue_server} || 'localhost';
-$stream ||= 1 if ($config->{_}->{record} || 'always') eq 'stream' && ! $always;
+$record ||=  $config->{_}->{record};
 my $hostname = hostname;
 (my $hostname_short = $hostname) =~ s/\..*$//;
 my $user = getpwuid($>) || $>;
@@ -91,12 +100,12 @@ if ($res->code == 404) {
 
 my $job_url = "$host_url$url_path.txt";
 print "+ job record url: $job_url\n" if $verbose;
-my $record;
+my $data;
 
-# PUT initial job record (unless $stream)
-if (! $stream) {
+# PUT initial job record if $record is 'always'
+if ($record eq 'always') {
   # Build initial output
-  $record = <<EOD
+  $data = <<EOD
 Hostname:       $hostname_short
 FQDN:           $hostname
 Username:       $user
@@ -113,7 +122,7 @@ EOD
   unless ($noop) {
     $req = HTTP::Request->new( PUT => $job_url );
     $req->content_type('text/plain');
-    $req->content($record);
+    $req->content($data);
     $res = $ua->request($req);
     die "PUT to $job_url failed: " . $res->status_line unless $res->is_success;
   }
@@ -133,41 +142,46 @@ my $runtime  = $end - $start;
 
 # PUT stdout and stderr, if any
 my $stdout_stderr = '';
-if ($stdout ne '') {
-  my $stdout_path = "$url_path.out";
-  $stdout_stderr .= "Stdout:         $stdout_path\n";
-  $stdout_stderr .= "StdoutSize:     " . length($stdout) . "\n";
-  $url = $host_url . $stdout_path;
-  print "+ stdout found, url: $url\n" if $verbose;
-  unless ($noop) {
-    $req = HTTP::Request->new( PUT => $url );
-    $req->content_type('text/plain');
-    $req->content($stdout);
-    $res = $ua->request($req);
-    die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+if ($record ne 'error' || $rc != 0) {
+  if ($stdout ne '') {
+    my $stdout_path = "$url_path.out";
+    $stdout_stderr .= "Stdout:         $stdout_path\n";
+    $stdout_stderr .= "StdoutSize:     " . length($stdout) . "\n";
+    $url = $host_url . $stdout_path;
+    print "+ stdout found, url: $url\n" if $verbose;
+    unless ($noop) {
+      $req = HTTP::Request->new( PUT => $url );
+      $req->content_type('text/plain');
+      $req->content($stdout);
+      $res = $ua->request($req);
+      die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+    }
+
+    print $stdout if $passthru;
   }
+  if ($stderr ne '') {
+    my $stderr_path = "$url_path.err";
+    $stdout_stderr .= "Stderr:         $stderr_path\n";
+    $stdout_stderr .= "StderrSize:     " . length($stderr) . "\n";
+    $url = $host_url . $stderr_path;
+    print "+ stderr found, url: $url\n" if $verbose;
+    unless ($noop) {
+      $req = HTTP::Request->new( PUT => $url );
+      $req->content_type('text/plain');
+      $req->content($stderr);
+      $res = $ua->request($req);
+      die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+    }
 
-  print $stdout if $passthru;
-}
-if ($stderr ne '') {
-  my $stderr_path = "$url_path.err";
-  $stdout_stderr .= "Stderr:         $stderr_path\n";
-  $stdout_stderr .= "StderrSize:     " . length($stderr) . "\n";
-  $url = $host_url . $stderr_path;
-  print "+ stderr found, url: $url\n" if $verbose;
-  unless ($noop) {
-    $req = HTTP::Request->new( PUT => $url );
-    $req->content_type('text/plain');
-    $req->content($stderr);
-    $res = $ua->request($req);
-    die "PUT to $url failed: " . $res->status_line unless $res->is_success;
+    print STDERR $stderr if $passthru;
   }
-
-  print STDERR $stderr if $passthru;
 }
 
-if (! $stream || $stdout_stderr) {
-  $record = <<EOD
+if ( $record eq 'always' || 
+    ($record eq 'stream' && $stdout_stderr) || 
+    ($record eq 'error'  && $rc != 0)
+   ) {
+  $data = <<EOD
 Hostname:       $hostname_short
 FQDN:           $hostname
 Username:       $user
@@ -187,10 +201,10 @@ EOD
 ;
 
   # PUT updated job record
-  print "+ job record:\n$record" if $verbose >= 2 or $noop;
+  print "+ job record:\n$data" if $verbose >= 2 or $noop;
   unless ($noop) {
     $req = HTTP::Request->new( PUT => $job_url );
-    $req->content($record);
+    $req->content($data);
     $res = $ua->request($req);
     die "PUT to $job_url failed: " . $res->status_line unless $res->is_success;
   }
@@ -245,6 +259,10 @@ and overrides 'record = stream'.
 Only log a job record if any stdout or stderr output is produced by command.
 Equivalent to 'record = stream' in the cronologue config file, and overrides
 'record = always' (which is the default).
+
+=item --error | -e
+
+Only log a job record if the return code indicates an error (i.e. is non-zero).
 
 =item --passthru | -p
 
