@@ -1,7 +1,7 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.5
+Version: 0.5.1
 Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
@@ -89,6 +89,9 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Wed Nov 24 2010 Gavin Carr <gavin@openfusion.com.au> 0.5.1-1
+- Add a --passthru|-p option to cronologue.
+
 * Fri Nov 19 2010 Gavin Carr <gavin@openfusion.com.au> 0.5-1
 - Add report=always|stream to config, and -a|-s options to cronologue.
 - Add --config|-c <config_file> option to cronologue.
