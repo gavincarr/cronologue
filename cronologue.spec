@@ -1,8 +1,8 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.5.1
-Release: 1%{org_tag}%{dist}
+Version: 0.5.3
+Release: 1%{org_tag}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
 License: GPL
@@ -89,6 +89,12 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Fri Jan 14 2011 Gavin Carr <gavin@openfusion.com.au> 0.5.3-1
+- Remove %dist tag from spec file (not dist-specific).
+
+* Fri Dec 03 2010 Gavin Carr <gavin@openfusion.com.au> 0.5.2-1
+- Add a --error|-e option to cronologue.
+
 * Wed Nov 24 2010 Gavin Carr <gavin@openfusion.com.au> 0.5.1-1
 - Add a --passthru|-p option to cronologue.
 
