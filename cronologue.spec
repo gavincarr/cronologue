@@ -2,7 +2,7 @@
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
 Version: 0.5.3
-Release: 1%{org_tag}
+Release: 2%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
 License: GPL
@@ -89,6 +89,9 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Mon Jan 17 2011 Gavin Carr <gavin@openfusion.com.au> 0.5.3-2
+- Add %dist tag back again, since rhel6 can't build for centos{4,5}.
+
 * Fri Jan 14 2011 Gavin Carr <gavin@openfusion.com.au> 0.5.3-1
 - Remove %dist tag from spec file (not dist-specific).
 
