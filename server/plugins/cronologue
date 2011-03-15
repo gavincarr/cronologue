@@ -14,6 +14,10 @@ sub post {
   my ($self, %arg) = @_;
   my $stash = $arg{stash};
 
+  # Initialise header_std{out,err}size so we can use in template conditionals
+  $stash->{header_stdoutsize} ||= 0;
+  $stash->{header_stderrsize} ||= 0;
+
   # For atom, construct title and body content from post headers
   if ($stash->{flavour} eq 'atom') {
 
