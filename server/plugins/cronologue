@@ -1,0 +1,42 @@
+# Blosxom Plugin: cronologue
+# Description: cronologue-specific stuff
+# Author(s): Gavin Carr <gavin@openfusion.com.au>
+# Version: 0.001
+
+package cronologue;
+
+use strict;
+use parent 'Statik::Plugin';
+
+#use Smart::Comments;
+
+sub post {
+  my ($self, %arg) = @_;
+  my $stash = $arg{stash};
+
+  # For atom, construct title and body content from post headers
+  if ($stash->{flavour} eq 'atom') {
+
+    my $title = sprintf "[%s, %s, %s] %s %s",
+      $stash->{header_hostname}, $stash->{header_username}, $stash->{header_starttime},
+      $stash->{header_commandline}, 
+      $stash->{header_returncode} == 0 ? '' : '[' . $stash->{header_returncode} . ']';
+    $stash->set(header_title => $title);
+    ### header_title set to: $stash->{header_title}
+
+    my $body = '';
+    $body .= sprintf qq(<a href="%s/data/%s" title="%s">%s</a> (%s)\n),
+      $stash->{url}, $stash->{header_stdout}, 'Stdout Stream', 'Stdout', $stash->{header_stdoutsize}
+        if $stash->{header_stdoutsize};
+    $body .= sprintf qq(<a href="%s/data/%s" title="%s">%s</a> (%s)\n),
+      $stash->{url}, $stash->{header_stderr}, 'Stderr Stream', 'Stderr', $stash->{header_stderrsize}
+        if $stash->{header_stderrsize};
+    $stash->set(body => $body);
+    ### body set to: $stash->{body}
+  }
+
+  return 1;
+}
+
+1;
+
