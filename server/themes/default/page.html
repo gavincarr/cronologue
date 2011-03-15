@@ -1,0 +1,83 @@
+<!-- statik head -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="$blog_encoding" />
+<meta http-equiv="refresh" content="300">
+<link rel="stylesheet" type="text/css" href="${url}themes/main.css" type="text/css">
+<link rel="alternate feed" type="application/atom+xml" title="Cronologue Feed" href="${url}index.atom">
+% if ($path) {
+<link rel="alternate feed" type="application/atom+xml" title="Cronologue Feed for $path" href="${url}${path}index.atom">
+<title>$blog_title - $path</title>
+% } else {
+<title>$blog_title</title>
+% }
+<link rel="shortcut icon" href="${url}themes/images/clock.png" type="image/png">
+</head>
+<body>
+% if ($path) {
+<h1><a href="${url}" alt="Cronologue Home">$blog_title</a></h1>
+% } else {
+<h1>$blog_title</h1>
+% }
+<div id="feeds">
+<a class="feedicon" href="${url}index.atom" title="Cronologue Feed"><img src="${url}themes/images/feed-icon-28x28.png" alt="Cronologue RSS Feed"></a>
+% if ($path) {
+<a class="feedicon" href="${url}${path}index.atom" title="Cronologue Feed for $path"><img src="${url}themes/images/feed-icon-28x28.png" alt="Cronologue RSS Feed"></a>
+% }
+</div>
+% $stash->{rownum} = 0;
+
+<!-- statik date -->
+% if ($stash->{rownum}) {
+</table>
+% }
+%# <h2><a href="${url}$yr/$mo_num/$da">$dw $da $mo $yr</a></h2>
+<h2>$dw $da $mo $yr</h2>
+
+<table>
+<tr>
+  <th>Hostname</th>
+  <th>User</th>
+  <th>Start Time</th>
+  <th>Duration (s)</th>
+  <th>Command</th>
+  <th>Return Code</th>
+  <th>Stdout</th>
+  <th>Stderr</th>
+</tr>
+
+<!-- statik post -->
+% $stash->{rownum}++;
+
+% if ($stash->{rownum} % 2 == 0) {
+<tr class="stripe">
+% } else {
+<tr>
+% }
+<td><a href="${url}$header_hostname">$header_hostname</a></td>
+  <td>$header_username</td>
+  <td>$header_starttime</td>
+  <td class="right">$header_jobduration</td>
+  <td>$header_commandline</td>
+  <td class="right">$header_returncode</td>
+% if ($stash->{header_stdoutsize}) {
+<td class="right"><a href="${url}data/$header_stdout">$header_stdoutsize</a></td>
+% } else {
+  <td>&nbsp;</td>
+% }
+% if ($stash->{header_stderrsize}) {
+<td class="right"><a href="${url}data/$header_stderr">$header_stderrsize</a></td>
+% } else {
+  <td>&nbsp;</td>
+% }
+</tr>
+
+<!-- statik foot -->
+% if ($stash->{rownum}) {
+</table>
+% }
+</body>
+</html>
+
+%# vim:ft=html
