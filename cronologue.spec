@@ -1,8 +1,8 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.5.3
-Release: 2%{org_tag}%{dist}
+Version: 0.6
+Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
 License: GPL
@@ -34,34 +34,28 @@ output streams from cronologue clients, and a GUI for viewing.
 %install
 test "%{buildroot}" != "/" && rm -rf %{buildroot}
 mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
 mkdir -p %{buildroot}%{_mandir}/man1
-mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/cgi
+mkdir -p %{buildroot}%{_sysconfdir}/httpd/conf.d
+mkdir -p %{buildroot}%{_sysconfdir}/cron.d
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/config
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/data
-mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/lib/Blosxom
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/plugins
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/state
-mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/html
-mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/cronologue1
+mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/default
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/images
 # Client
 install -m0755 %{name} %{buildroot}%{_bindir}
 install -m0644 %{name}.conf %{buildroot}%{_sysconfdir}
 pod2man %{name} > %{buildroot}%{_mandir}/man1/%{name}.1
 # Server
-install -m0755 server/cgi/blosxom.cgi %{buildroot}%{_localstatedir}/www/%{name}/cgi
 install -m0644 server/config/apache.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/%{name}.conf
-install -m0644 server/config/blosxom.conf %{buildroot}%{_localstatedir}/www/%{name}/config
+install -m0644 server/config/cronologue.cron %{buildroot}%{_sysconfdir}/cron.d/cronologue
+install -m0644 server/config/statik.conf %{buildroot}%{_localstatedir}/www/%{name}/config
 install -m0644 server/config/plugins.conf %{buildroot}%{_localstatedir}/www/%{name}/config
-install -m0644 server/config/rss20 %{buildroot}%{_localstatedir}/www/%{name}/config
-install -m0644 server/config/theme %{buildroot}%{_localstatedir}/www/%{name}/config
-install -m0644 server/lib/Blosxom/* %{buildroot}%{_localstatedir}/www/%{name}/lib/Blosxom
 install -m0644 server/plugins/* %{buildroot}%{_localstatedir}/www/%{name}/plugins
 install -m0644 server/themes/*.css %{buildroot}%{_localstatedir}/www/%{name}/themes
-install -m0644 server/themes/cronologue1/page %{buildroot}%{_localstatedir}/www/%{name}/themes/cronologue1/page
+install -m0644 server/themes/default/page.* %{buildroot}%{_localstatedir}/www/%{name}/themes/default
 install -m0644 server/themes/images/* %{buildroot}%{_localstatedir}/www/%{name}/themes/images
-cd %{buildroot}%{_localstatedir}/www/%{name}/themes/html && ln -s ../cronologue1/page
 
 %clean
 test "%{buildroot}" != "/" && rm -rf %{buildroot}
@@ -78,17 +72,19 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %files server
 %defattr(-,root,apache)
 %config(noreplace) %{_sysconfdir}/httpd/conf.d/%{name}.conf
+%config(noreplace) %{_sysconfdir}/cron.d/%{name}
 %dir %attr(2755,root,apache) %{_localstatedir}/www/%{name}
 %dir %attr(2755,apache,apache) %{_localstatedir}/www/%{name}/data
 %dir %attr(2755,apache,apache) %{_localstatedir}/www/%{name}/state
 %dir %{_localstatedir}/www/%{name}/config
-%attr(0755,root,apache) %{_localstatedir}/www/%{name}/cgi/*
 %config(noreplace) %{_localstatedir}/www/%{name}/config/*
-%{_localstatedir}/www/%{name}/lib
 %{_localstatedir}/www/%{name}/plugins
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Wed Jun 29 2011 Gavin Carr <gavin@openfusion.com.au> 0.6-1
+- Migrate to statik-based frontend, bump to 0.6.
+
 * Mon Jan 17 2011 Gavin Carr <gavin@openfusion.com.au> 0.5.3-2
 - Add %dist tag back again, since rhel6 can't build for centos{4,5}.
 
