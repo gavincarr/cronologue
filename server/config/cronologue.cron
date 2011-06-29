@@ -1,6 +1,7 @@
+PATH=/bin:/usr/bin:/usr/local/bin
 
 # Regenerate cronologue static output every 2 mins
-#*/2 * * * apache statik --config /var/www/cronologue/config/statik.conf
+#*/2 * * * * apache statik --config /var/www/cronologue/config/statik.conf
 
 # Prune cronologue data periodically
 #50 2 * * * apache find /var/www/cronologue/data -type f -mtime +60 -exec rm -f {} \;
