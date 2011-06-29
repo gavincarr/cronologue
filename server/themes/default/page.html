@@ -15,7 +15,7 @@
 <link rel="shortcut icon" href="${theme_url}images/clock.png" type="image/png">
 </head>
 <body>
-% if ($path) {
+% if ($path or $stash->{page_num} > 1) {
 <h1><a href="${url}" alt="Cronologue Home">$blog_title</a></h1>
 % } else {
 <h1>$blog_title</h1>
