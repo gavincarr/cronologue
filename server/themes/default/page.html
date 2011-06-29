@@ -27,6 +27,23 @@
 % }
 </div>
 
+<!-- Navigation -->
+% if ($stash->{is_index} and $stash->{page_total} > 1) {
+<div class="nav">
+%   if ($stash->{page_num} > 1) {
+<a href="index<% $stash->{page_num} > 2 ? ($stash->{page_num}-1) : '' %>">&laquo;&nbsp;Prev</a>
+%   } else {
+<span class="inactive">&laquo;&nbsp;Prev</span>
+%   }
+&nbsp;|&nbsp;
+%   if ($stash->{page_num} < $stash->{page_total}) {
+<a href="index<% $stash->{page_num}+1 %>">Next&nbsp;&raquo;</a>
+%   } else {
+<span class="inactive">Next&nbsp;&raquo;</span>
+%   }
+</div>
+% }
+
 <!-- statik date -->
 % if ($stash->{rownum}) {
 </table>
@@ -81,7 +98,25 @@
 % if ($stash->{rownum}) {
 </table>
 % }
+
+<!-- Navigation -->
+% if ($stash->{is_index} and $stash->{page_total} > 1) {
+<div class="nav">
+%   if ($stash->{page_num} > 1) {
+<a href="index<% $stash->{page_num} > 2 ? ($stash->{page_num}-1) : '' %>">&laquo;&nbsp;Prev</a>
+%   } else {
+<span class="inactive">&laquo;&nbsp;Prev</span>
+%   }
+&nbsp;|&nbsp;
+%   if ($stash->{page_num} < $stash->{page_total}) {
+<a href="index<% $stash->{page_num}+1 %>">Next&nbsp;&raquo;</a>
+%   } else {
+<span class="inactive">Next&nbsp;&raquo;</span>
+%   }
+</div>
+% }
+
 </body>
 </html>
 
-%# vim:ft=html
+%# vim:ft=mason

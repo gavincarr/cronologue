@@ -57,3 +57,10 @@ img {
 .feedicon {
   margin-left: 5px;
 }
+.nav {
+  margin: 20px;
+  text-align: center;
+}
+.inactive {
+  color: #999;
+}
