@@ -1,7 +1,7 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.6
+Version: 0.6.1
 Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
@@ -84,8 +84,11 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Wed Jun 29 2011 Gavin Carr <gavin@openfusion.com.au> 0.6.1-1
+- Various tweaks and fixes, mostly statik-related.
+
 * Wed Jun 29 2011 Gavin Carr <gavin@openfusion.com.au> 0.6-1
-- Migrate to statik-based frontend, bump to 0.6.
+- Migrate to statik-based frontend.
 
 * Mon Jan 17 2011 Gavin Carr <gavin@openfusion.com.au> 0.5.3-2
 - Add %dist tag back again, since rhel6 can't build for centos{4,5}.
