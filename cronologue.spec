@@ -41,6 +41,7 @@ mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/config
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/data
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/plugins
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/state
+mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/static
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/default
 mkdir -p %{buildroot}%{_localstatedir}/www/%{name}/themes/images
 # Client
@@ -79,6 +80,7 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %dir %{_localstatedir}/www/%{name}/config
 %config(noreplace) %{_localstatedir}/www/%{name}/config/*
 %{_localstatedir}/www/%{name}/plugins
+%{_localstatedir}/www/%{name}/static
 %{_localstatedir}/www/%{name}/themes
 
 %changelog

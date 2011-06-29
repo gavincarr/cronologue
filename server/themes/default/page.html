@@ -26,29 +26,33 @@
 <a class="feedicon" href="${url}${path}index.atom" title="Cronologue Feed for $path"><img src="${theme_url}images/feed-icon-28x28.png" alt="Cronologue RSS Feed"></a>
 % }
 </div>
-% $stash->{rownum} = 0;
 
 <!-- statik date -->
 % if ($stash->{rownum}) {
 </table>
 % }
-%# <h2><a href="${url}$yr/$mo_num/$da">$dw $da $mo $yr</a></h2>
+% $stash->{rownum} = 0;
+
 <h2>$dw $da $mo $yr</h2>
 
 <table>
 <tr>
   <th>Hostname</th>
   <th>User</th>
-  <th>Start Time</th>
-  <th>Duration (s)</th>
+  <th>Start&nbsp;Time</th>
+  <th>Duration&nbsp;(s)</th>
   <th>Command</th>
-  <th>Return Code</th>
+  <th>Return&nbsp;Code</th>
   <th>Stdout</th>
   <th>Stderr</th>
 </tr>
 
 <!-- statik post -->
-% $stash->{rownum}++;
+% if ($stash->{date_break}) {
+%   $stash->{rownum} = 1;
+% } else {
+%   $stash->{rownum}++;
+% }
 
 % if ($stash->{rownum} % 2 == 0) {
 <tr class="stripe">
