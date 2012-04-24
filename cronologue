@@ -69,11 +69,11 @@ $record ||=  $config->{_}->{record};
 my $hostname = hostname;
 (my $hostname_short = $hostname) =~ s/\..*$//;
 my $user = getpwuid($>) || $>;
-my $start = gmtime;
-my $start_ts   = $start->strftime('%Y%m%d%H%M%S');
-my $start_long = $start->strftime('%a %d %b %Y %H:%M:%S');
+my $start = localtime;
+my $start_ts   = $start->strftime('%Y%m%dT%H%M%S%z');
+my $start_long = $start->strftime('%a %d %b %Y %H:%M:%S%z');
 my $start_date = $start->strftime('%Y-%m-%d');
-my $start_time = $start->strftime('%H:%M:%S');
+my $start_time = $start->strftime('%H:%M:%S%z');
 my $cmdline = join ' ', @cmd;
 my $cmd_basename = basename($cmd[0]);
 my $cmd_digest = md5_hex $cmdline;
@@ -134,10 +134,10 @@ my $stderr = 'x' x 10_000; $stderr = '';        # preallocate 10k bytes
 run3 $cmd, \undef, \$stdout, \$stderr;
 my $rc = $? >> 8;
 my $end = gmtime;
-my $end_ts   = $end->strftime('%Y%m%d%H%M%S');
-my $end_long = $end->strftime('%a %d %b %Y %H:%M:%S');
+my $end_ts   = $end->strftime('%Y%m%dT%H%M%S%z');
+my $end_long = $end->strftime('%a %d %b %Y %H:%M:%S%z');
 my $end_date = $end->strftime('%Y-%m-%d');
-my $end_time = $end->strftime('%H:%M:%S');
+my $end_time = $end->strftime('%H:%M:%S%z');
 my $runtime  = $end - $start;
 
 # PUT stdout and stderr, if any
