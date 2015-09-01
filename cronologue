@@ -79,7 +79,9 @@ my $cmd_basename = basename($cmd[0]);
 my $cmd_digest = md5_hex $cmdline;
 
 # Build base URL
-my $host_url = sprintf "http://%s/cronologue/data/", $server;
+my $host_url = $server =~ /^http/ ? $server : "http://$server";
+$host_url   .= '/' if substr($server, -1) ne '/';
+$host_url   .= 'cronologue/data/';
 my $url_path = sprintf "%s/%s_%s", $hostname_short, $start_ts, $cmd_digest;
 
 my $ua = LWP::UserAgent->new;
@@ -286,7 +288,7 @@ Gavin Carr <gavin@openfusion.com.au>
 
 =head1 COPYRIGHT AND LICENCE
 
-Copyright (C) Gavin Carr 2010. 
+Copyright (C) Gavin Carr 2010-2015. 
 
 This library is free software; you can redistribute it and/or modify it 
 under the same terms as Perl itself, either Perl version 5.8.0 or, at 
