@@ -1,7 +1,7 @@
 
 Summary: cronologue is a cron logger capturing output to a central server
 Name: cronologue
-Version: 0.7
+Version: 0.8
 Release: 1%{org_tag}%{dist}
 URL: https://github.com/gavincarr/%{name}
 Source0: %{name}-%{version}.tar.gz
@@ -84,6 +84,9 @@ test "%{buildroot}" != "/" && rm -rf %{buildroot}
 %{_localstatedir}/www/%{name}/themes
 
 %changelog
+* Tue Sep 01 2015 Gavin Carr <gavin@openfusion.com.au> 0.8-1
+- Allow config server setting to be a url (allowing https).
+
 * Tue Apr 24 2012 Gavin Carr <gavin@openfusion.com.au> 0.7-1
 - Convert timestamps to localtime with timezone offset.
 
